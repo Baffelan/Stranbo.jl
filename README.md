@@ -134,5 +134,6 @@ yₜ = stack(test_series) * G' .+ αₜ
 # TODO
 
 - [ ] Non-linear observation processes
+- [ ] Passing pre-computed noise (i.e., with MultiNormal)
 - [ ] Multiplicative noises (and other non linear noises)
 - [ ] Noises as stochastic processes
