@@ -37,7 +37,7 @@ a = mixed_dirac_normal(0.4,0.99)
 For the (s)ar(i)ma process, its components are defined through objects of the `Stranbo` defined type `Sarma`.
 These have the following structure:
 ```Julia
-struct Sarma{T<:Real} # T is the numeric type, say Float32, and it is mandatory
+@kwdef struct Sarma{T<:Real} # T is the numeric type, say Float32, and it is mandatory
     p::Int = 1 # the auto-regressive order
     q::Int = 1 # the moving average order
     s::Int = 1 # the seasonality 
@@ -47,7 +47,13 @@ struct Sarma{T<:Real} # T is the numeric type, say Float32, and it is mandatory
 end
 ```
 
-The main function in the package is `realise`, which takes an array of time-series components, eventually one or more additive noises, (and in future an observation function), and number of points to sample.
+Each parameter can be changed, if needed, and otherwise be left to the default:
+```Julia
+Sarma(ar = [0.2], ma = [0.1])
+```
+define an arma (1,1) with ar and ma coefficients as specified (seasonality, p, and q are all set to the default 1).
+
+One of the main functions in the package is `realise`, which takes an array of time-series components, eventually one or more additive noises, (and in future an observation function), and number of points to sample.
 
 For example
 
