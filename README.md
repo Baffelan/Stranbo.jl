@@ -62,6 +62,29 @@ test_series = realise([
 
 Define an sarima (1,0,1)(1,0,1)7, with coefficients as defined and two level of noise with variance $0.1$ and a mixed dirac normal anomaly distribution with variance 5.0 and density 0.999.
 
+# State Space
+
+```Julia
+L = 1000
+
+a = mixed_dirac_normal(0.4,0.99)
+
+test_series = realise.([
+    [Sarma{Float32}(ar = [.1], ma = [.1], dₙ = Normal(.0,.1)),
+    Sarma{Float32}(ar = [.7], ma = [.7], s = 7, dₙ = Normal(.0,1.2))],
+    [Sarma{Float32}(ar = [.1], ma = [.1], dₙ = Normal(.0,.1)),
+    Sarma{Float32}(ar = [.7], ma = [.7], s = 7, dₙ = Normal(.0,1.2))],
+    [Sarma{Float32}(ar = [.1], ma = [.1], dₙ = Normal(.0,.1)),
+    Sarma{Float32}(ar = [.7], ma = [.7], s = 7, dₙ = Normal(.0,1.2))]
+    ], 
+    L)
+
+G  = [0.2 0.3 0.5]
+xₜ = stack(test_series) * G'
+aₜ = realise(mixed_dirac_normal(0.4,0.5),1000)
+yₜ = xₜ .+ aₜ
+```
+
 # TODO
 
 - [ ] Non-linear observation processes
