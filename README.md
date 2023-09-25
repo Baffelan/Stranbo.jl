@@ -5,6 +5,10 @@
 
 This is a light package to create time series with anomalies. Its name is my dialect word for "strange".
 
+The fundamental idea is to define stochastic process as (parametric) types, having a common interface to operate with them. Emphasis is on flexibility, composibility, and performance (we are in Julia, right?).
+
+The difference with other existing packages is that we do not include in the package ANY analysis, fitting, or learning procedure. This is just about simulating (potentially complex) time series with given paramaters. This seems to be a functionality not exposed in any other package.
+
 # Usage
 
 ## Installation
@@ -68,7 +72,7 @@ test_series = realise([
 
 Define an sarima (1,0,1)x(1,0,1)7, with coefficients as defined and two level of noise with variance $0.1$ and a mixed dirac normal anomaly distribution with variance 5.0 and density $1-0.999$.
 
-# State Space
+## State Space
 
 The tooling before, together with base Julia functions, allows us to use the (s)ar(i)ma time series to build **simple** state space process with additive anomalies.
 In the following we'll create a state space of the form
