@@ -60,29 +60,75 @@ test_series = realise([
     L)
 ```
 
-Define an sarima (1,0,1)(1,0,1)7, with coefficients as defined and two level of noise with variance $0.1$ and a mixed dirac normal anomaly distribution with variance 5.0 and density 0.999.
+Define an sarima (1,0,1)x(1,0,1)7, with coefficients as defined and two level of noise with variance $0.1$ and a mixed dirac normal anomaly distribution with variance 5.0 and density $1-0.999$.
 
 # State Space
 
+The tooling before, together with base Julia functions, allows us to use the (s)ar(i)ma time series to build **simple** state space process with additive anomalies.
+In the following we'll create a state space of the form
+
+$$
+\left\{\begin{matrix}
+y_t = & G x_t + & \alpha_t \\ 
+x_t = & T x_{t-1} + & \omega_t
+\end{matrix}\right. \, .
+$$
+
+In our case, $x_t$ will be a 3-dimensional process, where each dimension follows an independent sarima process. The matrix $G$ is defined below, and $\alpha_t$ is an additive normal noise with density 0.001.
+
+As above, define the lenght of the process and the anomaly noise distribution.
+We realise a noise path in advance. In this way we can keep track of it in following analysis.
 ```Julia
 L = 1000
 
-a = mixed_dirac_normal(0.4,0.99)
+αₜ = realise(
+        mixed_dirac_normal(0.4,0.99),
+        L
+    )
+```
 
-test_series = realise.([
-    [Sarma{Float32}(ar = [.1], ma = [.1], dₙ = Normal(.0,.1)),
-    Sarma{Float32}(ar = [.7], ma = [.7], s = 7, dₙ = Normal(.0,1.2))],
-    [Sarma{Float32}(ar = [.1], ma = [.1], dₙ = Normal(.0,.1)),
-    Sarma{Float32}(ar = [.7], ma = [.7], s = 7, dₙ = Normal(.0,1.2))],
-    [Sarma{Float32}(ar = [.1], ma = [.1], dₙ = Normal(.0,.1)),
-    Sarma{Float32}(ar = [.7], ma = [.7], s = 7, dₙ = Normal(.0,1.2))]
+Then, we define the observation matrix $G$.
+We keep it simple, for the time being:
+
+```Julia
+G  = [0.2 0.3 0.5]
+```
+
+Each component of the $x_t$ is an independent sarma process.
+We first define them as objects of Sarma type (I chose random parameter)
+
+```Julia
+proc1 = [
+    Sarma{Float32}(ar = [.1], ma = [.1]),
+    Sarma{Float32}(ar = [.3], ma = [.7], s = 7),
+    Sarma{Float32}(ar = [.7], ma = [.3], s = 14, dₙ = Normal(.0,0.8))
+    ]
+
+proc2 = [
+    Sarma{Float32}(ar = [.1], ma = [.1], dₙ = Normal(.0,.2)),
+    Sarma{Float32}(ar = [.7], ma = [.3], s = 30, dₙ = Normal(.0,1.2))
+    ]
+
+proc3 = [
+    Sarma{Float32}(p = 2, q = 2, ar = [.1,.02], ma = [.1,.02], dₙ = Normal(.0,.2)),
+    Sarma{Float32}(p = 4, q = 4, ar = [.9,.001,.001,0.001], ma = [.8,.001,.001,0.001], s = 365)
+    ]
+```
+Then, we realise $x_t$ process
+
+```Julia
+xₜ  = realise.([ # notice the broadcasting . (dot) following the function call!
+        proc1,
+        proc2,
+        proc3
     ], 
     L)
+```
 
-G  = [0.2 0.3 0.5]
-xₜ = stack(test_series) * G'
-aₜ = realise(mixed_dirac_normal(0.4,0.5),1000)
-yₜ = xₜ .+ aₜ
+Finally, we apply the observation matrix $G$ to the process and add the noise.
+
+```Julia
+yₜ = stack(test_series) * G' .+ αₜ
 ```
 
 # TODO
