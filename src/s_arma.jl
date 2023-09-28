@@ -1,22 +1,30 @@
-@kwdef struct Sarma{T<:Real}
+@kwdef struct SARMA{T<:Real}
     s::Int = 1
-    ar::Vector{T} = []
-    ma::Vector{T} = []
-    dₙ = Normal(zero(T),one(T))
+    ar::Vector{T}
+    ma::Vector{T}
+    dₙ
 end
 
-@kwdef struct Sarima{T<:Real}
+function  SARMA(; T::Type{<:Real} = Float64,  s::Int = 1, ar = T[], ma = T[], dₙ = Normal(zero(T),one(T)))
+    SARMA{T}(s,ar,ma,dₙ)
+end
+
+@kwdef struct SARIMA{T<:Real}
     s::Int8 = 1
     d::Int = 0
-    ar::Vector{T} = []
-    ma::Vector{T} = []
-    dₙ = Normal(zero(T),one(T))
+    ar::Vector{T}
+    ma::Vector{T}
+    dₙ
+end
+
+function  SARIMA(; T::Type{<:Real} = Float64,  s::Int = 1, d::Int = 0, ar = T[], ma = T[], dₙ = Normal(zero(T),one(T)))
+    SARMA{T}(s,d,ar,ma,dₙ)
 end
 
 # Simulate ARMA process
-function simulate_arma(SARMA::Sarma{T},n::Int) where T <: Number
+function simulate_arma(sarma::SARMA{T},n::Int) where T <: Number
     
-    (; s, ar, ma, dₙ) = SARMA
+    (; s, ar, ma, dₙ) = sarma
 
     # initialize a place holder for x
 
@@ -40,7 +48,7 @@ function simulate_arma(SARMA::Sarma{T},n::Int) where T <: Number
     return x
 end
 
-function simulate_arma(V::Vector{Sarma{T}},n::Int; dₙ = nothing) where T <: Real
+function simulate_arma(V::Vector{SARMA{T}},n::Int; dₙ = nothing) where T <: Real
     
     # if dₙ is not define by user, the dₙ in the first sarima will be used
     if isnothing(dₙ)
@@ -68,14 +76,14 @@ function simulate_arma(V::Vector{Sarma{T}},n::Int; dₙ = nothing) where T <: Re
 end
 
 # Alias for Simulate SARMA with multiple seasonal components
-function realise(X::Vector{Sarma{T}},n::Int,dₙ) where T <: Real
-    return simulate_arma(X::Vector{Sarma{T}},n::Int; dₙ = dₙ)
+function realise(X::Vector{SARMA{T}},n::Int,dₙ) where T <: Real
+    return simulate_arma(X::Vector{SARMA{T}},n::Int; dₙ = dₙ)
 end
 
 # Simulate ARIMA process
-function simulate_arima(SARIMA::Sarima,n::Int)
+function simulate_arima(sarima::SARIMA,n::Int)
     
-    (; s, d, ar, ma, dₙ) = SARIMA
+    (; s, d, ar, ma, dₙ) = sarima
 
     # initialize a place holder for x
 
@@ -105,7 +113,7 @@ function simulate_arima(SARIMA::Sarima,n::Int)
     return x
 end
 
-function simulate_arima(V::Vector{Sarima{T}},n::Int; dₙ = nothing) where T <: Real
+function simulate_arima(V::Vector{SARIMA{T}},n::Int; dₙ = nothing) where T <: Real
     
     # if dₙ is not define by user, the dₙ in the first sarima will be used
     if isnothing(dₙ)
