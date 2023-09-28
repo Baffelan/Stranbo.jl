@@ -63,9 +63,11 @@ function sample(V::Vector{SARIMA{T}},n::Int; dₙ = nothing) where T <: Real
     poly_ar = prod([Polynomial([1,-seasonal_vector(p.ar, p.s)], :B) for p in V if !isempty(p.ar)])
     Δᵥ      = prod([Δ(s = p.s, d = p.d) for p in V if !iszero(p.d)])
     x_poly = One - poly_ar*Δᵥ
+    @show x_poly
 
     z_poly = prod([Polynomial([1, seasonal_vector(p.ma, p.s)], :B) for p in V if !isempty(p.ma)])
 
+    @show z_poly
     # we iterate over the series x to add the effects of the past
     lagger!(x,z,x_poly,z_poly)
 
