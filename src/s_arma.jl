@@ -33,11 +33,11 @@ function sample(sarima::SARIMA{T},n::Int; verbose = false) where T  <: Real
     x = zeros(T,n)
     
     # create the lag polynomials with the corresponding coefficients
-    x_poly = One - Polynomial([1,-seasonal_vector(ar, s)],:B) * Δ(s = s, d = d)
+    x_poly = One - Polynomial([1,-seasonal_vector(ar, s)...],:B) * Δ(s = s, d = d)
     verbose && @show x_poly
 
-    z_poly = Polynomial([1, seasonal_vector(ma, s)],:B)
-    verbose && @show y_poly
+    z_poly = Polynomial([1, seasonal_vector(ma, s)...],:B)
+    verbose && @show z_poly
 
     # we iterate over the series x to add the effects of the past
     lagger!(x,z,x_poly,z_poly)
@@ -63,12 +63,12 @@ function sample(V::Vector{SARIMA{T}},n::Int; dₙ = nothing, verbose = false) wh
     x = zeros(T,n)
 
     # create the lag polynomials with the corresponding coefficients
-    poly_ar = prod([Polynomial([1,-seasonal_vector(p.ar, p.s)], :B) for p in V if !isempty(p.ar)])
+    poly_ar = prod([Polynomial([1,-seasonal_vector(p.ar, p.s)...], :B) for p in V if !isempty(p.ar)])
     Δᵥ      = prod([Δ(s = p.s, d = p.d) for p in V if !iszero(p.d)])
     x_poly = One - poly_ar*Δᵥ
     verbose && x_poly
 
-    z_poly = prod([Polynomial([1, seasonal_vector(p.ma, p.s)], :B) for p in V if !isempty(p.ma)])
+    z_poly = prod([Polynomial([1, seasonal_vector(p.ma, p.s)...], :B) for p in V if !isempty(p.ma)])
 
     verbose && @show z_poly
     # we iterate over the series x to add the effects of the past
