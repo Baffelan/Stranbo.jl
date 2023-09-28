@@ -107,7 +107,7 @@ function sample(sarima::SARIMA{T},n::Int) where T  <: Real
     Δᵥ = One - Δ(s = s, d = d)
 
     for t in 1:length(x)
-        @inbounds  x[t] = x[t] + backwarded_sum(x,Δᵥ,t)
+        @inbounds  x[t] = x[t] + backwarded_sum(x,Δᵥ,t+1)
     end
     
     return x
@@ -141,7 +141,7 @@ function sample(V::Vector{SARIMA{T}},n::Int; dₙ = nothing) where T <: Real
 
     # o the integration
     for t in 1:length(x)
-        @inbounds  x[t] = x[t] + backwarded_sum(x,Δᵥ,t)
+        @inbounds  x[t] = x[t] + backwarded_sum(x,Δᵥ,t+1)
     end
 
     return x
