@@ -11,13 +11,17 @@ The difference with other existing packages is that we do not include in the pac
 
 # Usage
 
+# WARNING
+
+The package is in very rapid development, the docs are being updated as we go.
+
 ## Installation
 
 You can install the package from GitHub by typing:
 
 ```Julia
 using Pkg
-Pkg.add("")
+Pkg.add("https://github.com/Baffelan/Stranbo.jl")
 ```
 
 ## Create a series
@@ -38,33 +42,42 @@ a = mixed_dirac_normal(0.4,0.99)
 
 `a` is equal to $0$ with probability $0.99$, and is sampled from a normal distribution with mean 0 and variance $0.4$ with probability $1-0.99$.
 
-For the (s)ar(i)ma process, its components are defined through objects of the `Stranbo` defined type `Sarma`.
+For the (s)ar(i)ma process, its components are defined through objects of the `Stranbo` defined type `SARIMA`.
 These have the following structure:
 ```Julia
-@kwdef struct Sarma{T<:Real} # T is the numeric type, say Float32, and it is mandatory
-    p::Int = 1 # the auto-regressive order
-    q::Int = 1 # the moving average order
-    s::Int = 1 # the seasonality 
-    ar::Vector{T} = [0.5] # a vector of coefficient for the ar process
-    ma::Vector{T} = [0.5] # a vector of coefficient for the ma process
-    dₙ = Normal(zero(T),one(T)) # the generative noise in the process, defaulting to a standard Normal
+@kwdef struct SARIMA{T<:Real} # T defines the numerical precision
+    s::Int # The seasonality effect
+    d::Int # The integration order (can be 0)
+    ar::Vector{T} # The auto-regressive coefficients
+    ma::Vector{T} # The moving-average coefficients
+    dₙ # the generating noise (as a distribution or a vector)
+end
+```
+
+The orders $p$ and $q$ are inferred by the lenght of the $ar$ and $ma$ vectors.
+
+We also have a convenience constructor `sarima` with some defaults:
+
+```Julia
+function  sarima(; T::Type{<:Real} = Float64,  s::Int = 1, d::Int = 0, ar = T[], ma = T[], dₙ = Normal(zero(T),one(T)))
+    SARIMA{T}(s,d,ar,ma,dₙ)
 end
 ```
 
 Each parameter can be changed, if needed, and otherwise be left to the default:
 ```Julia
-Sarma(ar = [0.2], ma = [0.1])
+sarima(ar = [0.2], ma = [0.1])
 ```
 define an arma (1,1) with ar and ma coefficients as specified (seasonality, p, and q are all set to the default 1).
 
-One of the main functions in the package is `realise`, which takes an array of time-series components, eventually one or more additive noises, (and in future an observation function), and number of points to sample.
+One of the main functions in the package is `sample`, which takes an array of time-series components, eventually one or more additive noises, (and in future an observation function), and number of points to sample.
 
 For example
 
 ```Julia
 test_series = realise([
-    Sarma{Float32}(ar = [.1], ma = [.1], dₙ = Normal(.0,.1)),
-    Sarma{Float32}(ar = [.7], ma = [.7], s = 7, dₙ = Normal(.0,1.2)),
+    sarima(ar = [.1], ma = [.1], dₙ = Normal(.0,.1)),
+    sarima(ar = [.7], ma = [.7], s = 7),
     mixed_dirac_normal(5.0,0.999)
     ], 
     L)
