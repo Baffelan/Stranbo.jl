@@ -96,7 +96,7 @@ function simulate_arima(SARIMA::Sarima,n::Int)
     # we iterate over the series x to add the effects of the past
     lagger!(x,z,poly_ar,poly_ma)
 
-    Δᵥ = Uno - Δ(s = s, d = d)
+    Δᵥ = One - Δ(s = s, d = d)
 
     for t in 1:length(x)
         @inbounds  x[t] = x[t] + backwarded_sum(x,Δᵥ,t)
@@ -125,7 +125,7 @@ function simulate_arima(V::Vector{Sarima{T}},n::Int; dₙ = nothing) where T <: 
     # create the lag polynomial with the corresponding coefficients
     poly_ar = prod([c2p(p.ar, p.s) for p in V if !isempty(sarma.ar)]) - One
     poly_ma = prod([c2p(p.ma, p.s) for p in V if !isempty(sarma.ma)])
-    Δᵥ = Uno - prod([Δ(s = p.s, d = p.d) for p in V if !isempty(sarma.ma)])
+    Δᵥ = One - prod([Δ(s = p.s, d = p.d) for p in V if !isempty(sarma.ma)])
 
 
     # we iterate over the series x to add the effects of the past
