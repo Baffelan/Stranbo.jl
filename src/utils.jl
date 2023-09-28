@@ -2,7 +2,7 @@
 # we use it when we build x[t] as a sum of elements x[t-k]
 # and it allow us not to have to check whether k >= t
 function getidx(v::V,i::Int) where V<:Vector{T} where T<:Number
-    @inbounds vᵢ = i > 0 ? view(v,i) : zero(T)
+    @inbounds vᵢ = i > 0 ? v[i] : zero(T)
     return vᵢ
 end
 
@@ -31,7 +31,7 @@ const One = Polynomial([1],:B)
 function backwarded_sum(x,ρ,t)
 
     if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense
-        return backshifted_view(x,t+1,1:length(ρ)) ⋅ coeffs(ρ)
+        return getidx(x,t+1 .- 1:length(ρ)) ⋅ coeffs(ρ)
     else
         return zero(eltype(x))
     end
