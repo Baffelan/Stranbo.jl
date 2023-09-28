@@ -2,7 +2,6 @@ module Stranbo
 
 # Write your package code here.
 using LinearAlgebra
-import Random: sample
 using Random
 using Distributions
 using Polynomials
