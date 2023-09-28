@@ -22,7 +22,7 @@ function  sarima(; T::Type{<:Real} = Float64,  s::Int = 1, d::Int = 0, ar = T[],
 end
 
 # Simulate ARMA process
-function simulate_arma(sarma::SARMA{T},n::Int) where T <: Number
+function sample(sarma::SARMA{T},n::Int) where T <: Number
     
     (; s, ar, ma, dₙ) = sarma
 
@@ -48,7 +48,7 @@ function simulate_arma(sarma::SARMA{T},n::Int) where T <: Number
     return x
 end
 
-function simulate_arma(V::Vector{SARMA{T}},n::Int; dₙ = nothing) where T <: Real
+function sample(V::Vector{SARMA{T}},n::Int; dₙ = nothing) where T <: Real
     
     # if dₙ is not define by user, the dₙ in the first sarima will be used
     if isnothing(dₙ)
@@ -77,11 +77,11 @@ end
 
 # Alias for Simulate SARMA with multiple seasonal components
 function realise(X::Vector{SARMA{T}},n::Int,dₙ) where T <: Real
-    return simulate_arma(X::Vector{SARMA{T}},n::Int; dₙ = dₙ)
+    return sample(X::Vector{SARMA{T}},n::Int; dₙ = dₙ)
 end
 
 # Simulate ARIMA process
-function simulate_arima(sarima::SARIMA,n::Int)
+function sample(sarima::SARIMA{T},n::Int) where T  <: Real
     
     (; s, d, ar, ma, dₙ) = sarima
 
@@ -113,7 +113,7 @@ function simulate_arima(sarima::SARIMA,n::Int)
     return x
 end
 
-function simulate_arima(V::Vector{SARIMA{T}},n::Int; dₙ = nothing) where T <: Real
+function sample(V::Vector{SARIMA{T}},n::Int; dₙ = nothing) where T <: Real
     
     # if dₙ is not define by user, the dₙ in the first sarima will be used
     if isnothing(dₙ)
@@ -145,6 +145,10 @@ function simulate_arima(V::Vector{SARIMA{T}},n::Int; dₙ = nothing) where T <: 
     end
 
     return x
+end
+
+function realise(X::Vector{SARIMA{T}},n::Int,dₙ) where T <: Real
+    return sample(X::Vector{SARIMA{T}},n::Int; dₙ = dₙ)
 end
 
 # incremental adding process
