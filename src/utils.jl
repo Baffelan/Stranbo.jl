@@ -18,7 +18,7 @@ const One = Polynomial([1],:B)
 
 # we define the Lag operator polynomial, as $(1-B^s)^d$
 # this is the special case for `s = 1`
-Δ(; d) = Polynomial(Int[1,-1],:B)^d
+Δ(d) = Polynomial(Int[1,-1],:B)^d
 
 # we define the Lag operator polynomial, as $(1-B^s)^d$
 Δ(; s = 1,d) = Polynomial(vcat(1,zeros(Int,s-1),-1),:B)^d
