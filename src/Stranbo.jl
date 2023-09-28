@@ -12,8 +12,8 @@ include("glue.jl")
 export mixed_dirac_normal
 include("additive_anomaly.jl")
 
-export Sarma, simulate_arma
-export Sarima, simulate_arima
+export SARMA, Sarma, simulate_arma
+export SARIMA, Sarima, simulate_arima
 include("s_arma.jl")
 
 export getidx
