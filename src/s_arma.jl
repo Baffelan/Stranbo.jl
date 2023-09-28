@@ -1,24 +1,24 @@
 @kwdef struct SARMA{T<:Real}
-    s::Int = 1
+    s::Int
     ar::Vector{T}
     ma::Vector{T}
     dₙ
 end
 
-function  SARMA(; T::Type{<:Real} = Float64,  s::Int = 1, ar = T[], ma = T[], dₙ = Normal(zero(T),one(T)))
+function  sarma(; T::Type{<:Real} = Float64,  s::Int = 1, ar = T[], ma = T[], dₙ = Normal(zero(T),one(T)))
     SARMA{T}(s,ar,ma,dₙ)
 end
 
 @kwdef struct SARIMA{T<:Real}
-    s::Int8 = 1
-    d::Int = 0
+    s::Int8
+    d::Int
     ar::Vector{T}
     ma::Vector{T}
     dₙ
 end
 
-function  SARIMA(; T::Type{<:Real} = Float64,  s::Int = 1, d::Int = 0, ar = T[], ma = T[], dₙ = Normal(zero(T),one(T)))
-    SARMA{T}(s,d,ar,ma,dₙ)
+function  sarima(; T::Type{<:Real} = Float64,  s::Int = 1, d::Int = 0, ar = T[], ma = T[], dₙ = Normal(zero(T),one(T)))
+    SARIMA{T}(s,d,ar,ma,dₙ)
 end
 
 # Simulate ARMA process
