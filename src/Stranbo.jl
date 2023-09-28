@@ -2,6 +2,7 @@ module Stranbo
 
 # Write your package code here.
 using LinearAlgebra
+import Random: sample
 using Random
 using Distributions
 using Polynomials
@@ -12,8 +13,9 @@ include("glue.jl")
 export mixed_dirac_normal
 include("additive_anomaly.jl")
 
-export SARMA, sarma, simulate_arma
-export SARIMA, sarima, simulate_arima
+export SARMA, sarma
+export SARIMA, sarima
+export sample
 include("s_arma.jl")
 
 export getidx
