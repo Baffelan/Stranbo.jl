@@ -28,7 +28,7 @@ function simulate_arma(SARMA::Sarma,n::Int)
     else error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
     end
     # initialize a place holder for x  
-    x = similar(z)
+    x = zeros(T,n)
 
     # create the lag polynomial with the corresponding coefficients
     poly_ar = c2p(ar,s) - One
@@ -55,7 +55,7 @@ function simulate_arma(V::Vector{Sarma{T}},n::Int; dₙ = nothing) where T <: Re
     else error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
     end
     # initialize a place holder for x  
-    x = similar(z)
+    x = zeros(T,n)
 
     # create the lag polynomial with the corresponding coefficients
     poly_ar = prod([c2p(p.ar, p.s) for p in V if !isempty(p.ar)]) - One
@@ -87,8 +87,8 @@ function simulate_arima(SARIMA::Sarima,n::Int)
     else error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
     end
     # initialize a place holder for x  
-    x = similar(z)
-
+    x = zeros(T,n)
+    
     # create the lag polynomial with the corresponding coefficients
     poly_ar = c2p(ar,s) - One
     poly_ma = c2p(ma,s)
@@ -120,8 +120,8 @@ function simulate_arima(V::Vector{Sarima{T}},n::Int; dₙ = nothing) where T <: 
     else error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
     end
     # initialize a place holder for x  
-    x = similar(z)
-
+    x = zeros(T,n)
+    
     # create the lag polynomial with the corresponding coefficients
     poly_ar = prod([c2p(p.ar, p.s) for p in V if !isempty(sarma.ar)]) - One
     poly_ma = prod([c2p(p.ma, p.s) for p in V if !isempty(sarma.ma)])
