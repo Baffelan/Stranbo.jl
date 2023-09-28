@@ -48,5 +48,9 @@ end
 # a seasonality `s`
 # builds the polynomial $1+\sum_i xᵢB^{s*i}$
 function c2p(x::Vector{T},s) where T
-    Polynomial(vcat(one(T),seasonal_vector(x,s)),:B)
+    if isempty(x)
+        return Polynomial([1])
+    else
+        return Polynomial(vcat(one(T),seasonal_vector(x,s)),:B)
+    end
 end
