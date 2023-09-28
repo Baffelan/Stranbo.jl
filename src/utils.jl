@@ -8,6 +8,7 @@ end
 
 # extension of basic getidx to array of indices
 getidx(v,Idx::I) where I<:AbstractArray  = [getidx(v,i) for i in Idx]
+getidx(v,Idx::I) where I<:Base.OneTo{<:Number}  = [getidx(v,i) for i in Idx]
 
 # given a vector `x`, an index `t` in `x` (the *current time*), and a vector of indexes `I`
 # returns the backshifted view `x[t-i]` for `i ∈ l`
@@ -31,7 +32,7 @@ const One = Polynomial([1],:B)
 function backwarded_sum(x,ρ,t)
 
     if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense
-        return backshifted_view(x,t + 1,collect(Base.oneto(length(ρ)))) ⋅ coeffs(ρ)
+        return backshifted_view(x,t + 1,Base.oneto(length(ρ))) ⋅ coeffs(ρ)
     else
         return zero(eltype(x))
     end
