@@ -75,8 +75,6 @@ end
 
 # incremental adding process
 function lagger!(x,z,poly_ar,poly_ma)
-    @show poly_ar
-    @show poly_ma
     for t in 1:length(x)
     @inbounds  x[t] = backwarded_sum(x,poly_ar,t) +
                       backwarded_sum(z,poly_ma,t)
