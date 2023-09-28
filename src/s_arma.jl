@@ -14,7 +14,7 @@ end
 end
 
 # Simulate ARMA process
-function simulate_arma(SARMA::Sarma,n::Int)
+function simulate_arma(SARMA::Sarma{T},n::Int) where T <: Number
     
     (; s, ar, ma, dₙ) = SARMA
 
@@ -121,7 +121,7 @@ function simulate_arima(V::Vector{Sarima{T}},n::Int; dₙ = nothing) where T <: 
     end
     # initialize a place holder for x  
     x = zeros(T,n)
-    
+
     # create the lag polynomial with the corresponding coefficients
     poly_ar = prod([c2p(p.ar, p.s) for p in V if !isempty(sarma.ar)]) - One
     poly_ma = prod([c2p(p.ma, p.s) for p in V if !isempty(sarma.ma)])
@@ -143,7 +143,7 @@ end
 function lagger!(x,z,poly_ar,poly_ma)
   
     for t in 1:length(x)
-    @inbounds  x[t] = backwarded_sum(x,poly_ar,t+1) +
+    @inbounds  x[t] = backwarded_sum(x,poly_ar,t) +
                       backwarded_sum(z,poly_ma,t+1)
     end
 
