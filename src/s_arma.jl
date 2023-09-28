@@ -131,9 +131,9 @@ function sample(V::Vector{SARIMA{T}},n::Int; dₙ = nothing) where T <: Real
     x = zeros(T,n)
 
     # create the lag polynomial with the corresponding coefficients
-    poly_ar = prod([c2p(p.ar, p.s) for p in V if !isempty(sarma.ar)]) - One
-    poly_ma = prod([c2p(p.ma, p.s) for p in V if !isempty(sarma.ma)])
-    Δᵥ = One - prod([Δ(s = p.s, d = p.d) for p in V if !isempty(sarma.ma)])
+    poly_ar = prod([c2p(p.ar, p.s) for p in V if !isempty(p.ar)]) - One
+    poly_ma = prod([c2p(p.ma, p.s) for p in V if !isempty(p.ma)])
+    Δᵥ = One - prod([Δ(s = p.s, d = p.d) for p in V if !isempty(p.ma)])
 
 
     # we iterate over the series x to add the effects of the past
