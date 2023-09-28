@@ -2,7 +2,7 @@
 # we use it when we build x[t] as a sum of elements x[t-k]
 # and it allow us not to have to check whether k >= t
 function getidx(v::V,i::Int) where V<:Vector{T} where T<:Number
-    @inbounds vᵢ = i > 0 ? v[i] : zero(T)
+    @inbounds vᵢ = i > 0 ? view(v,i) : zero(T)
     return vᵢ
 end
 
@@ -27,11 +27,11 @@ const One = Polynomial([1],:B)
 # given a vector `x`, a polynomial ρ, and a present time `t`
 # Computes $\sum_i\rho_iB^ix_t := \sum_i\rho_ix_{t-i}$
 # The computation is done as
-# $$\left [ x_{t-1}, ..., x_{t-n} \right ] \cdot \left [ \rho_{t-1}, ..., \rho_{t-n} \right ]$$
+# $$\left [ x_{t}, ..., x_{t-n} \right ] \cdot \left [ \rho_{0}, ..., \rho_{n} \right ]$$
 function backwarded_sum(x,ρ,t)
 
     if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense
-        return backshifted_view(x,t,1:length(ρ)) ⋅ coeffs(ρ)
+        return backshifted_view(x,t+1,1:length(ρ)) ⋅ coeffs(ρ)
     else
         return zero(eltype(x))
     end
