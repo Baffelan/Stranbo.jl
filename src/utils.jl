@@ -1,7 +1,7 @@
 # this function allows to index into a vector with zero or negative indices
 # we use it when we build x[t] as a sum of elements x[t-k]
 # and it allow us not to have to check whether k >= t
-function getidx(v::V,i::Int) where V<:Vector{T} where T<:Number
+function getidx(v::V,i::Int) where V<:AbstractArray{T} where T<:Number
     vᵢ = i > 0 ? view(v,i) : zero(T)
     return vᵢ
 end
@@ -55,7 +55,7 @@ function seasonal_vector(v::Vector{T},s) where T
     T.(vcat(eachrow(hcat(zeros(eltype(v),length(v),s-1),v))...))
 end
 
-function seasonal_vector(v::SVector{N,T},s) where N,T
+function seasonal_vector(v::SVector{N,T},s) where {N,T}1
     T.(vcat(eachrow(hcat(zeros(eltype(v),length(v),s-1),v))...))
 end
 
@@ -68,4 +68,22 @@ function c2p(x::Vector{T},s) where T
     else
         return Polynomial(vcat(one(T),seasonal_vector(x,s)),:B)
     end
+end
+
+function get_z(dₙ, n)
+
+    if typeof(dₙ) <: Distribution
+        z = rand(dₙ,n)
+    elseif typeof(dₙ) <: Array
+        z = dₙ
+    else
+        error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
+    end
+
+    if length(z) < 90
+        z = SVector{length(z)}(z)
+    end
+
+    return z
+
 end

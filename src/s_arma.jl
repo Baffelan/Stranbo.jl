@@ -16,24 +16,11 @@ function realise(X::Vector{SARIMA{T}},n::Int,dₙ) where T <: Real
 end
 
 # Simulate ARIMA process
-function sample(sarima::SARIMA{T},n::Int) where T  <: Real
+function sample(sarima::SARIMA{T},n) where T  <: Real
     
     (; s, d, ar, ma, dₙ) = sarima
 
-    # initialize a place holder for x
-
-    # sample n random observations from the noise probability distribution, dₙ
-    if typeof(dₙ) <: Distribution
-        z = rand(dₙ,n)
-    elseif typeof(dₙ) <: AbstractArray
-        z = dₙ
-    else
-        error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
-    end
-    
-    if length(z) < 90
-        z = SVector{length(z)}(z)
-    end
+    z = get_z(dₙ,n)
 
     # initialize a place holder for x  
     x = zeros(T,n)
@@ -52,7 +39,7 @@ function sample(sarima::SARIMA{T},n::Int) where T  <: Real
     return x
 end
 
-function sample(V::Vector{SARIMA{T}},n::Int; dₙ = nothing) where T <: Real
+function sample(V::Vector{SARIMA{T}},n; dₙ = nothing) where T <: Real
     
     # if dₙ is not define by user, the dₙ in the first sarima will be used
     if isnothing(dₙ)
@@ -60,18 +47,8 @@ function sample(V::Vector{SARIMA{T}},n::Int; dₙ = nothing) where T <: Real
     end
 
     # sample n random observations from the noise probability distribution, dₙ
-    if typeof(dₙ) <: Distribution
-        z = rand(dₙ,n)
-    elseif typeof(dₙ) <: Array
-        z = dₙ
-    else
-        error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
-    end
 
-    if length(z) < 90
-        z = SVector{length(z)}(z)
-    end
-
+    z = get_z(dₙ,n)
     # initialize a place holder for x  
     x = zeros(T,n)
 
@@ -79,8 +56,10 @@ function sample(V::Vector{SARIMA{T}},n::Int; dₙ = nothing) where T <: Real
     poly_ar = prod([Polynomial([1,-seasonal_vector(p.ar, p.s)...], :B) for p in V if !isempty(p.ar)])
     Δᵥ      = prod([Δ(s = p.s, d = p.d) for p in V if !iszero(p.d)])
     x_poly = One - poly_ar*Δᵥ
-    
+    x_poly = SVector{length(x_poly)}(coeffs(x_poly))
+
     z_poly = prod([Polynomial([1, seasonal_vector(p.ma, p.s)...], :B) for p in V if !isempty(p.ma)])
+    z_poly = SVector{length(z_poly)}(coeffs(z_poly))
 
     # we iterate over the series x to add the effects of the past
     lagger!(x,z,x_poly,z_poly)
