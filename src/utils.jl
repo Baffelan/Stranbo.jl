@@ -29,7 +29,7 @@ const One = Polynomial([1],:B)
 # Computes $\sum_i\rho_iB^ix_t := \sum_i\rho_ix_{t-i}$
 # The computation is done as
 # $$\left [ x_{t}, ..., x_{t-n} \right ] \cdot \left [ \rho_{0}, ..., \rho_{n} \right ]$$
-function backwarded_sum(x,ρ,t)
+function backwarded_sum(x,ρ::P,t) where P <: Polynomial
 
     if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense
         return backshifted_view(x,t + 1,Base.oneto(length(ρ))) ⋅ coeffs(ρ)
@@ -39,9 +39,23 @@ function backwarded_sum(x,ρ,t)
 
 end
 
+function backwarded_sum(x,ρ::A,t) where A <: AbstractArray
+
+    if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense
+        return backshifted_view(x,t + 1,Base.oneto(length(ρ))) ⋅ ρ
+    else
+        return zero(eltype(x))
+    end
+
+end
+
 # given a vector `v = [a,b,c,...]` and a seasonality `s`
 # produces a vector `[0₁, ..., 0ₛ₋₁,a,0₁, ..., 0ₛ₋₁,b,0₁, ..., 0ₛ₋₁,c,0₁, ..., 0ₛ₋₁,...]`
 function seasonal_vector(v::Vector{T},s) where T
+    T.(vcat(eachrow(hcat(zeros(eltype(v),length(v),s-1),v))...))
+end
+
+function seasonal_vector(v::SVector{N,T},s) where N,T
     T.(vcat(eachrow(hcat(zeros(eltype(v),length(v),s-1),v))...))
 end
 

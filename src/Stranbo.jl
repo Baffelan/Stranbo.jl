@@ -1,6 +1,7 @@
 module Stranbo
 
 # Write your package code here.
+using StaticArrays
 using LinearAlgebra
 using Random
 using Distributions

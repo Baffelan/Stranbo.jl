@@ -1,13 +1,13 @@
 @kwdef struct SARIMA{T<:Real}
     s::Int
     d::Int
-    ar::Vector{T}
-    ma::Vector{T}
+    ar::SV where {SV <: SVector{N,T} where N}
+    ma::SV where {SV <: SVector{M,T} where M}
     dₙ
 end
 
 function  sarima(; T::Type{<:Real} = Float64,  s::Int = 1, d::Int = 0, ar = T[], ma = T[], dₙ = Normal(zero(T),one(T)))
-    SARIMA{T}(s,d,ar,ma,dₙ)
+    SARIMA{T}(s,d,SVector{length(ar)}(ar),SVector{length(ma)}(ma),dₙ)
 end
 
 # Alias for Simulate SARMA with multiple seasonal components
@@ -25,18 +25,24 @@ function sample(sarima::SARIMA{T},n::Int) where T  <: Real
     # sample n random observations from the noise probability distribution, dₙ
     if typeof(dₙ) <: Distribution
         z = rand(dₙ,n)
-    elseif typeof(dₙ) <: Array
+    elseif typeof(dₙ) <: AbstractArray
         z = dₙ
-    else error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
+    else
+        error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
     end
+    z = SVector{length(z)}(z)
+
     # initialize a place holder for x  
     x = zeros(T,n)
     
     # create the lag polynomials with the corresponding coefficients
     x_poly = One - Polynomial([1,-seasonal_vector(ar, s)...],:B) * Δ(s = s, d = d)
+    x_poly = SVector{length(x_poly)}(coeffs(x_poly))
     
     z_poly = Polynomial([1, seasonal_vector(ma, s)...],:B)
-    
+    z_poly = SVector{length(z_poly)}(coeffs(z_poly))
+
+
     # we iterate over the series x to add the effects of the past
     lagger!(x,z,x_poly,z_poly)
 
