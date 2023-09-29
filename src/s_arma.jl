@@ -30,7 +30,10 @@ function sample(sarima::SARIMA{T},n::Int) where T  <: Real
     else
         error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
     end
-    z = SVector{length(z)}(z)
+    
+    if length(z) < 90
+        z = SVector{length(z)}(z)
+    end
 
     # initialize a place holder for x  
     x = zeros(T,n)
@@ -61,8 +64,14 @@ function sample(V::Vector{SARIMA{T}},n::Int; dₙ = nothing) where T <: Real
         z = rand(dₙ,n)
     elseif typeof(dₙ) <: Array
         z = dₙ
-    else error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
+    else
+        error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
     end
+
+    if length(z) < 90
+        z = SVector{length(z)}(z)
+    end
+
     # initialize a place holder for x  
     x = zeros(T,n)
 
