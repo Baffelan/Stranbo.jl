@@ -1,11 +1,14 @@
 module Stranbo
 
 # Write your package code here.
-using StaticArrays
+using Bumper
 using LinearAlgebra
 using Random
 using Distributions
 using Polynomials
+using StaticArrays
+using StrideArrays
+
 
 export realise
 include("glue.jl")

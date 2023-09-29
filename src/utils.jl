@@ -31,7 +31,7 @@ const One = Polynomial([1],:B)
 # $$\left [ x_{t}, ..., x_{t-n} \right ] \cdot \left [ \rho_{0}, ..., \rho_{n} \right ]$$
 function backwarded_sum(x,ρ::P,t) where P <: Polynomial
 
-    if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense
+    if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense        
         return backshifted_view(x,t + 1,Base.oneto(length(ρ))) ⋅ coeffs(ρ)
     else
         return zero(eltype(x))
@@ -42,7 +42,11 @@ end
 function backwarded_sum(x,ρ::A,t) where A <: AbstractArray
 
     if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense
-        return backshifted_view(x,t + 1,Base.oneto(length(ρ))) ⋅ ρ
+        @no_escape begin
+            y = alloc(eltype(x),length(ρ))
+            y .= backshifted_view(x,t + 1,Base.oneto(length(ρ)))
+            return  y ⋅ ρ
+        end
     else
         return zero(eltype(x))
     end

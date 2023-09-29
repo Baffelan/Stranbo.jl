@@ -26,7 +26,7 @@ function sample(sarima::SARIMA{T},n) where T  <: Real
     x = zeros(T,n)
     
     # create the lag polynomials with the corresponding coefficients
-    x_poly = One - Polynomial([1,-seasonal_vector(ar, s)...],:B) * Δ(s = s, d = d)
+    x_poly = One - Polynomial([1,-seasonal_vector(ar, s)...],:B) * Δ(s = s, d = d)  # _moving to the right_ all the terms of the ar polynomial but the constant 1
     x_poly = SVector{length(x_poly)}(coeffs(x_poly))
     
     z_poly = Polynomial([1, seasonal_vector(ma, s)...],:B)
@@ -55,7 +55,7 @@ function sample(V::Vector{SARIMA{T}},n; dₙ = nothing) where T <: Real
     # create the lag polynomials with the corresponding coefficients
     poly_ar = prod([Polynomial([1,-seasonal_vector(p.ar, p.s)...], :B) for p in V if !isempty(p.ar)])
     Δᵥ      = prod([Δ(s = p.s, d = p.d) for p in V if !iszero(p.d)])
-    x_poly = One - poly_ar*Δᵥ
+    x_poly = One - poly_ar*Δᵥ # _moving to the right_ all the terms of the ar polynomial but the constant 1
     x_poly = SVector{length(x_poly)}(coeffs(x_poly))
 
     z_poly = prod([Polynomial([1, seasonal_vector(p.ma, p.s)...], :B) for p in V if !isempty(p.ma)])
@@ -70,8 +70,8 @@ end
 # incremental adding process
 function lagger!(x,z,poly_ar,poly_ma)
     for t in 1:length(x)
-    @inbounds  x[t] = backwarded_sum(x,poly_ar,t) +
-                      backwarded_sum(z,poly_ma,t)
+    @inbounds  x[t] = backwarded_sum(x,poly_ar,t) + # ar component
+                      backwarded_sum(z,poly_ma,t) # ma component
     end
 
     return x
