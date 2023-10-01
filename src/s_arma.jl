@@ -40,12 +40,12 @@ function sample(V::Vector{SARIMA{T}},n::Integer; dₙ = nothing) where T <: Real
     x = zeros(T,n)
 
     # create the lag polynomials with the corresponding coefficients
-    poly_ar = prod([Polynomial([one(T),-seasonal_vector(p.ar, p.s)...], :B) for p in V if !isempty(p.ar)])
+    poly_ar = prod([Polynomial([one(T),-seasonal_vector(p.ar, p.s)...], :B) for p in V])
     Δᵥ      = prod([Δ(s = p.s, d = p.d) for p in V])
     x_poly = One - poly_ar*Δᵥ # _moving to the right_ all the terms of the ar polynomial but the constant 1
     x_poly = SVector{length(x_poly)}(coeffs(x_poly))
 
-    z_poly = prod([Polynomial([one(T), seasonal_vector(p.ma, p.s)...], :B) for p in V if !isempty(p.ma)])
+    z_poly = prod([Polynomial([one(T), seasonal_vector(p.ma, p.s)...], :B) for p in V])
     z_poly = SVector{length(z_poly)}(coeffs(z_poly))
 
     # we iterate over the series x to add the effects of the past

@@ -48,42 +48,69 @@ These have the following structure:
 @kwdef struct SARIMA{T<:Real} # T defines the numerical precision
     s::Int # The seasonality effect
     d::Int # The integration order (can be 0)
-    ar::Vector{T} # The auto-regressive coefficients
-    ma::Vector{T} # The moving-average coefficients
+    ar <: SVector{N,T} # The auto-regressive coefficients (given as a static vector)
+    ma <: SVector{M,T} # The moving-average coefficients (given as a static vector)
     dₙ # the generating noise (as a distribution or a vector)
 end
 ```
 
 The orders $p$ and $q$ are inferred by the lenght of the $ar$ and $ma$ vectors.
 
-We also have a convenience constructor `sarima` with some defaults:
+We also have a convenience constructor `sarima` with some defaults. The `sarima()` interface offers an easy way to define the building blocks of a SARIMA process without needing to specify every detail.
 
 ```Julia
-function  sarima(; T::Type{<:Real} = Float64,  s::Int = 1, d::Int = 0, ar = T[], ma = T[], dₙ = Normal(zero(T),one(T)))
+function  sarima(;
+    T::Type{<:Real} = Float64,
+    s::Int = 1,
+    d::Int = 0,
+    ar = T[],
+    ma = T[],
+    dₙ = Normal(zero(T),one(T)))
+
     SARIMA{T}(s,d,ar,ma,dₙ)
+
 end
 ```
 
-Each parameter can be changed, if needed, and otherwise be left to the default:
+When calling `sarima()` each parameter can be changed, if needed, and otherwise be left to the default. For example:
 ```Julia
 sarima(ar = [0.2], ma = [0.1])
 ```
 define an arma (1,1) with ar and ma coefficients as specified (seasonality, p, and q are all set to the default 1).
 
+And:
+```Julia
+sarima(d = 2, ar = [0.2], ma = [0.1])
+```
+define an arima (1,2,1) with ar and ma coefficients as specified.
+
 One of the main functions in the package is `sample`, which takes an array of time-series components, eventually one or more additive noises, (and in future an observation function), and number of points to sample.
 
-For example
+For example, we can define a sarima (1,1,1)x(0,1,1)7 as follows:
 
 ```Julia
-test_series = realise([
-    sarima(ar = [.1], ma = [.1], dₙ = Normal(.0,.1)),
-    sarima(ar = [.7], ma = [.7], s = 7),
-    mixed_dirac_normal(5.0,0.999)
-    ], 
-    L)
+exmpl_sarima = [
+        sarima(d = 1, ar = [.1], ma = [.1]),
+        sarima(d = 1, ma = [.7], s = 7)
+    ]
 ```
 
-Define an sarima (1,0,1)x(1,0,1)7, with coefficients as defined and two level of noise with variance $0.1$ and a mixed dirac normal anomaly distribution with variance 5.0 and density $1-0.999$.
+and from that we can either samples of the sarima trajectory as:
+
+```Julia
+sample(exmpl_sarima, 100_000)
+```
+
+Or add to it an additive noise by using `realise_all()`:
+
+```Julia
+realise_all([
+    exmpl_sarima, # this is a vector of sarimas components
+    a],
+    100_000)
+```
+
+Notice that all the sarimas component should be passed wrapped in an array (so to disambiguate about generative noise, i.e., $z$, and additive anomalies, i.e. $a$).
 
 ## State Space
 
