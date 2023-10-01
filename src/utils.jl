@@ -2,7 +2,7 @@
 # we use it when we build x[t] as a sum of elements x[t-k]
 # and it allow us not to have to check whether k >= t
 function getidx(v::V,i::Int) where V<:AbstractArray{T} where T<:Number
-    vᵢ = i > 0 ? view(v,i) : zero(T)
+    vᵢ = i > 0 ? v[i] : zero(T)
     return vᵢ
 end
 
@@ -12,7 +12,7 @@ getidx(v,Idx::I) where I<:Base.OneTo{<:Number}  = [getidx(v,i) for i in Idx]
 
 # given a vector `x`, an index `t` in `x` (the *current time*), and a vector of indexes `I`
 # returns the backshifted view `x[t-i]` for `i ∈ l`
-backshifted_view(x,t,I) = getidx(x,t .- I)
+backshifted_view(x,t,I) = @inline getidx(x,t .- I)
 
 # the constant polynomial $1$ in the variable `:B`
 const One = Polynomial([1],:B)
@@ -39,39 +39,37 @@ function backwarded_sum(x,ρ::P,t) where P <: Polynomial
 
 end
 
-function backwarded_sum(x,ρ::A,t) where A <: AbstractArray
-
+function backwarded_sum(x,ρ::A,t,buf = default_buffer()) where A <: AbstractArray
     if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense
-        @no_escape begin
-            y = alloc(eltype(x),length(ρ))
+        @no_escape buf begin
+            y = alloc(eltype(x),buf,length(ρ))
             y .= backshifted_view(x,t + 1,Base.oneto(length(ρ)))
-            return  y ⋅ ρ
+            y ⋅ ρ
         end
     else
-        return zero(eltype(x))
+        zero(eltype(x))
     end
-
 end
 
 # given a vector `v = [a,b,c,...]` and a seasonality `s`
 # produces a vector `[0₁, ..., 0ₛ₋₁,a,0₁, ..., 0ₛ₋₁,b,0₁, ..., 0ₛ₋₁,c,0₁, ..., 0ₛ₋₁,...]`
 function seasonal_vector(v::Vector{T},s) where T
-    T.(vcat(eachrow(hcat(zeros(eltype(v),length(v),s-1),v))...))
-end
-
-function seasonal_vector(v::SVector{N,T},s) where {N,T}1
-    T.(vcat(eachrow(hcat(zeros(eltype(v),length(v),s-1),v))...))
-end
-
-# given a vector `x = [x₁,x₂,x₃,...]` of coefficients (for the ar, ma, ax, ... component),
-# a seasonality `s`
-# builds the polynomial $1+\sum_i xᵢB^{s*i}$
-function c2p(x::Vector{T},s) where T
-    if isempty(x)
-        return Polynomial([1])
-    else
-        return Polynomial(vcat(one(T),seasonal_vector(x,s)),:B)
+    sv = zeros(T,length(v)*s)
+    if s > 0 && length(v) > 0
+        sv[s:s:end] .= v
     end
+    return sv
+end
+
+# given a vector `v = [a,b,c,...]` and a seasonality `s`
+# produces a vector `[0₁, ..., 0ₛ₋₁,a,0₁, ..., 0ₛ₋₁,b,0₁, ..., 0ₛ₋₁,c,0₁, ..., 0ₛ₋₁,...]`
+# (or just identica to `v` if `s` is 1)
+function seasonal_vector(v::SVector{N,T},s) where {N,T}
+    sv = zeros(T,N*s)
+    if s > 0 && N > 0
+        sv[s:s:end] .= v
+    end
+    return sv
 end
 
 function get_z(dₙ, n)

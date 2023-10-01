@@ -10,11 +10,6 @@ function  sarima(; T::Type{<:Real} = Float64,  s::Int = 1, d::Int = 0, ar = T[],
     SARIMA{T}(s,d,SVector{length(ar)}(ar),SVector{length(ma)}(ma),dₙ)
 end
 
-# Alias for Simulate SARMA with multiple seasonal components
-function realise(X::Vector{SARIMA{T}},n::Int,dₙ) where T <: Real
-    return sample(X::Vector{SARIMA{T}},n::Int; dₙ = dₙ)
-end
-
 # Simulate ARIMA process
 function sample(sarima::SARIMA{T},n) where T  <: Real
     
@@ -26,7 +21,7 @@ function sample(sarima::SARIMA{T},n) where T  <: Real
     x = zeros(T,n)
     
     # create the lag polynomials with the corresponding coefficients
-    x_poly = One - Polynomial([1,-seasonal_vector(ar, s)...],:B) * Δ(s = s, d = d)  # _moving to the right_ all the terms of the ar polynomial but the constant 1
+    x_poly = One - Polynomial([one(T),-seasonal_vector(ar, s)...],:B) * Δ(s = s, d = d)  # _moving to the right_ all the terms of the ar polynomial but the constant 1
     x_poly = SVector{length(x_poly)}(coeffs(x_poly))
     
     z_poly = Polynomial([1, seasonal_vector(ma, s)...],:B)
@@ -53,12 +48,12 @@ function sample(V::Vector{SARIMA{T}},n; dₙ = nothing) where T <: Real
     x = zeros(T,n)
 
     # create the lag polynomials with the corresponding coefficients
-    poly_ar = prod([Polynomial([1,-seasonal_vector(p.ar, p.s)...], :B) for p in V if !isempty(p.ar)])
-    Δᵥ      = prod([Δ(s = p.s, d = p.d) for p in V if !iszero(p.d)])
+    poly_ar = prod([Polynomial([one(T),-seasonal_vector(p.ar, p.s)...], :B) for p in V if !isempty(p.ar)])
+    Δᵥ      = prod([Δ(s = p.s, d = p.d) for p in V])
     x_poly = One - poly_ar*Δᵥ # _moving to the right_ all the terms of the ar polynomial but the constant 1
     x_poly = SVector{length(x_poly)}(coeffs(x_poly))
 
-    z_poly = prod([Polynomial([1, seasonal_vector(p.ma, p.s)...], :B) for p in V if !isempty(p.ma)])
+    z_poly = prod([Polynomial([one(T), seasonal_vector(p.ma, p.s)...], :B) for p in V if !isempty(p.ma)])
     z_poly = SVector{length(z_poly)}(coeffs(z_poly))
 
     # we iterate over the series x to add the effects of the past

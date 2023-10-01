@@ -1,14 +1,12 @@
 module Stranbo
 
 # Write your package code here.
-using Bumper
-using LinearAlgebra
-using Random
-using Distributions
-using Polynomials
-using StaticArrays
-using StrideArrays
-
+using Bumper: alloc, default_buffer, @no_escape
+using LinearAlgebra: ⋅
+using Random: rand
+using Distributions: Distribution, MixtureModel, Normal
+using Polynomials: Polynomial, *, -, coeffs
+using StaticArrays: SVector
 
 export realise
 include("glue.jl")
@@ -23,9 +21,9 @@ include("s_arma.jl")
 export getidx
 export lag
 export pushedback_sum
-export laggedvector
+export seasonal_vector
 export coeffpoly
-export Δ, Uno
+export Δ
 include("utils.jl")
     
 end
