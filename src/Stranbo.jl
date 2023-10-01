@@ -18,6 +18,7 @@ using StaticArrays: SVector
 end
 
 export realise
+export realise_all
 include("glue.jl")
 
 export mixed_dirac_normal
