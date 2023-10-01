@@ -1,11 +1,12 @@
 module Stranbo
 
-# Write your package code here.
-using Bumper: alloc, default_buffer, @no_escape
-using LinearAlgebra: ⋅
-using Random: rand
+import StatsBase: sample
+
+using Bumper: @no_escape, alloc, default_buffer
 using Distributions: Distribution, MixtureModel, Normal
-using Polynomials: Polynomial, *, -, coeffs
+using LinearAlgebra: ⋅
+using Polynomials: *, -, Polynomial, coeffs
+using Random: rand
 using StaticArrays: SVector
 
 @kwdef struct SARIMA{T<:Real}
