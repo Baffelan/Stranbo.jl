@@ -1,11 +1,3 @@
-@kwdef struct SARIMA{T<:Real}
-    s::Int
-    d::Int
-    ar::SVN where {SVN <: SVector{N,T} where N}
-    ma::SVM where {SVM <: SVector{M,T} where M}
-    dₙ
-end
-
 function  sarima(; T::Type{<:Real} = Float64,  s::Int = 1, d::Int = 0, ar = T[], ma = T[], dₙ = Normal(zero(T),one(T)))
     SARIMA{T}(s,d,SVector{length(ar)}(ar),SVector{length(ma)}(ma),dₙ)
 end

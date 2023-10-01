@@ -8,6 +8,14 @@ using Distributions: Distribution, MixtureModel, Normal
 using Polynomials: Polynomial, *, -, coeffs
 using StaticArrays: SVector
 
+@kwdef struct SARIMA{T<:Real}
+    s::Int
+    d::Int
+    ar::SVN where {SVN <: SVector{N,T} where N}
+    ma::SVM where {SVM <: SVector{M,T} where M}
+    dₙ
+end
+
 export realise
 include("glue.jl")
 
