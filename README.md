@@ -149,25 +149,25 @@ We first define them as objects of Sarma type (I chose random parameter)
 
 ```Julia
 proc1 = [
-    Sarma{Float32}(ar = [.1], ma = [.1]),
-    Sarma{Float32}(ar = [.3], ma = [.7], s = 7),
-    Sarma{Float32}(ar = [.7], ma = [.3], s = 14, dₙ = Normal(.0,0.8))
+    sarima(ar = [.1], ma = [.1]),
+    sarima(ma = [.7], s = 7),
+    sarima(ma = [.3], s = 14)
     ]
 
 proc2 = [
-    Sarma{Float32}(ar = [.1], ma = [.1], dₙ = Normal(.0,.2)),
-    Sarma{Float32}(ar = [.7], ma = [.3], s = 30, dₙ = Normal(.0,1.2))
+    sarima(ar = [.1], ma = [.1], dₙ = Normal(.0,.2)),
+    sarima(ar = [.2], ma = [.2], s = 30)
     ]
 
 proc3 = [
-    Sarma{Float32}(p = 2, q = 2, ar = [.1,.02], ma = [.1,.02], dₙ = Normal(.0,.2)),
-    Sarma{Float32}(p = 4, q = 4, ar = [.9,.001,.001,0.001], ma = [.8,.001,.001,0.001], s = 365)
+    sarima(ar = [.1,.02], ma = [.1,.02], dₙ = Normal(.0,.2)),
+    sarima(ar = [.9,.001,.001,0.001], ma = [.8,.001,.001,0.001], s = 365)
     ]
 ```
-Then, we realise $x_t$ process
+Then, we sample a trajectory from each of the $x_t$ process
 
 ```Julia
-xₜ  = realise.([ # notice the broadcasting . (dot) following the function call!
+xₜ  = sample.([ # notice the broadcasting . (dot) following the function call!
         proc1,
         proc2,
         proc3
@@ -178,12 +178,14 @@ xₜ  = realise.([ # notice the broadcasting . (dot) following the function call
 Finally, we apply the observation matrix $G$ to the process and add the noise.
 
 ```Julia
-yₜ = stack(test_series) * G' .+ αₜ
+yₜ = stack(xₜ) * G' .+ αₜ
 ```
+
+We could have used whatever else function on `stack(xₜ)`, for example any non-linear function.
 
 # TODO
 
-- [ ] Non-linear observation processes
-- [ ] Passing pre-computed noise (i.e., with MultiNormal)
+- [ ] auxiliary components (e.g., sarimax processes)
+- [ ] switchin-markov models
 - [ ] Multiplicative noises (and other non linear noises)
 - [ ] Noises as stochastic processes
