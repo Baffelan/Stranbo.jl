@@ -3,11 +3,11 @@
 [![Build Status](https://github.com/Baffelan/Stranbo.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Baffelan/Stranbo.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
 
-This is a light package to create time series with anomalies. Its name is my dialect word for "strange".
+The aim of this nimble package is to simulate time series with anomalies. Its named after the word for "strange" in my dialect.
 
-The fundamental idea is to define stochastic process as (parametric) types, having a common interface to operate with them. Emphasis is on flexibility, composibility, and performance (we are in Julia, right?).
+The fundamental idea is to define stochastic process as (parametric) types, sharing a common interface to operate with them. Emphasis is on flexibility, composibility, and performance (we are in Julia, right?).
 
-The difference with other existing packages is that we do not include in the package ANY analysis, fitting, or learning procedure. This is just about simulating (potentially complex) time series with given paramaters. This seems to be a functionality not exposed in any other package.
+The main difference with other existing packages is that we do not include in the package ANY analysis, fitting, or learning procedure. This is just about simulating (potentially complex) time series with given paramaters and anomaly regimes. This seems to be a functionality not exposed in any other package (that we are aware of).
 
 # Usage
 
@@ -174,6 +174,20 @@ xₜ  = sample.([ # notice the broadcasting . (dot) following the function call!
     ], 
     L)
 ```
+
+This is done pretty quickly:
+
+```Julia
+ Range (min … max):  5.796 ms …   9.324 ms  ┊ GC (min … max):  0.00% … 15.85%
+ Time  (median):     6.752 ms               ┊ GC (median):    11.33%
+ Time  (mean ± σ):   6.452 ms ± 548.207 μs  ┊ GC (mean ± σ):   6.87% ±  5.87%
+
+   █▂
+  ▆██▆▄▄▃▂▂▂▂▁▁▂▁▁▂▁▂▂▁▁▁▁▁▁▁▁▂▃▄▄▄▆██▇▆▅▄▃▄▃▃▁▂▃▂▂▁▂▂▁▁▁▁▁▁▂ ▃
+  5.8 ms          Histogram: frequency by time        7.58 ms <
+
+ Memory estimate: 23.84 MiB, allocs estimate: 9318.
+ ```
 
 Finally, we apply the observation matrix $G$ to the process and add the noise.
 
