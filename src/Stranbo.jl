@@ -9,24 +9,23 @@ using Polynomials: *, -, Polynomial, coeffs
 using Random: rand
 using StaticArrays: SVector
 
-@kwdef struct SARIMA{T<:Real}
-    s::Int
-    d::Int
-    ar::SVN where {SVN <: SVector{N,T} where N}
-    ma::SVM where {SVM <: SVector{M,T} where M}
-    dₙ
+export ArrayParams
+struct ArrayParams
+    vector::V where {V <: AbstractArray{<:Number}}
+    coefficients::C where {C <: AbstractArray{<:Number}}
 end
-
-export realise
-export realise_all
-include("glue.jl")
 
 export mixed_dirac_normal
 include("additive_anomaly.jl")
 
-export SARIMA, sarima
+export SARIMA
+export sarima
 export sample
 include("s_arma.jl")
+
+export SARIMAX
+export sarimax
+include("s_armax.jl")
 
 export getidx
 export lag
@@ -35,5 +34,11 @@ export seasonal_vector
 export coeffpoly
 export Δ
 include("utils.jl")
+
+
+export realise
+export realise_all
+include("glue.jl")
+
     
 end

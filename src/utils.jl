@@ -1,7 +1,7 @@
 # this function allows to index into a vector with zero or negative indices
 # we use it when we build x[t] as a sum of elements x[t-k]
 # and it allow us not to have to check whether k >= t
-function getidx(v::V,i::Int) where V<:AbstractArray{T} where T<:Number
+function getidx(v::V,i::Int)::T where V<:AbstractArray{T} where T<:Number
     vᵢ = i > 0 ? v[i] : zero(T)
     return vᵢ
 end
@@ -24,21 +24,7 @@ const One = Polynomial([1],:B)
 # we define the Lag operator polynomial, as $(1-B^s)^d$
 Δ(; s = 1,d) = Polynomial(vcat(1,zeros(Int,s-1),-1),:B)^d
 
-# given a vector `x`, a polynomial ρ, and a present time `t`
-# Computes $\sum_i\rho_iB^ix_t := \sum_i\rho_ix_{t-i}$
-# The computation is done as
-# $$\left [ x_{t}, ..., x_{t-n} \right ] \cdot \left [ \rho_{0}, ..., \rho_{n} \right ]$$
-function backwarded_sum(x,ρ::P,t) where P <: Polynomial
-
-    if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense        
-        return backshifted_view(x,t + 1,Base.oneto(length(ρ))) ⋅ coeffs(ρ)
-    else
-        return zero(eltype(x))
-    end
-
-end
-
-# given a vector `x`, a polynomial ρ, and a present time `t`
+# given a vector `x`, a vector of coefficients ρ, and a present time `t`
 # Computes $\sum_i\rho_iB^ix_t := \sum_i\rho_ix_{t-i}$
 # The computation is done as
 # $$\left [ x_{t}, ..., x_{t-n} \right ] \cdot \left [ \rho_{0}, ..., \rho_{n} \right ]$$
@@ -53,6 +39,9 @@ function backwarded_sum(x,ρ::A,t,buf = default_buffer()) where A <: AbstractArr
         zero(eltype(x))
     end
 end
+backwarded_sum(arrey_param::ArrayParams,t,buf = default_buffer()) = backwarded_sum(arrey_param.vector,arrey_param.coefficients,t)
+backwarded_sum(arreys_params::Vector{ArrayParams},t) = sum(backwarded_sum.(arreys_params,t))
+
 
 # given a vector `v = [a,b,c,...]` and a seasonality `s`
 # produces a vector `[0₁, ..., 0ₛ₋₁,a,0₁, ..., 0ₛ₋₁,b,0₁, ..., 0ₛ₋₁,c,0₁, ..., 0ₛ₋₁,...]`
