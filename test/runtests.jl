@@ -14,7 +14,7 @@ end
 end
 
 @testset "utils.jl" begin
-    @test One == Polynomial([1],:B)
+    @test Stranbo.One == Polynomial([1],:B)
 end
 
 # @testset "glue.jl" begin
