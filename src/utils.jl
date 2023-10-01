@@ -39,7 +39,7 @@ function backwarded_sum(x,ρ::A,t,buf = default_buffer()) where A <: AbstractArr
         zero(eltype(x))
     end
 end
-backwarded_sum(arrey_param::ArrayParams,t,buf = default_buffer()) = backwarded_sum(arrey_param.vector,arrey_param.coefficients,t)
+backwarded_sum(arrey_param::ArrayParams,t) = backwarded_sum(arrey_param.vector,arrey_param.coefficients,t)
 backwarded_sum(arreys_params::Vector{ArrayParams},t) = sum(backwarded_sum.(arreys_params,t))
 
 
