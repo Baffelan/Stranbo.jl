@@ -3,7 +3,7 @@ function  sarima(; T::Type{<:Real} = Float64,  s::Int = 1, d::Int = 0, ar = T[],
 end
 
 # Simulate ARIMA process
-function sample(sarima::SARIMA{T},n) where T  <: Real
+function sample(sarima::SARIMA{T},n::Integer) where T  <: Real
     
     (; s, d, ar, ma, dₙ) = sarima
 
@@ -26,7 +26,7 @@ function sample(sarima::SARIMA{T},n) where T  <: Real
     return x
 end
 
-function sample(V::Vector{SARIMA{T}},n; dₙ = nothing) where T <: Real
+function sample(V::Vector{SARIMA{T}},n::Integer; dₙ = nothing) where T <: Real
     
     # if dₙ is not define by user, the dₙ in the first sarima will be used
     if isnothing(dₙ)
