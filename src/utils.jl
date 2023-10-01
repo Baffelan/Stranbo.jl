@@ -24,7 +24,6 @@ const One = Polynomial([1],:B)
 # we define the Lag operator polynomial, as $(1-B^s)^d$
 Δ(; s = 1,d) = Polynomial(vcat(1,zeros(Int,s-1),-1),:B)^d
 
-
 # given a vector `x`, a polynomial ρ, and a present time `t`
 # Computes $\sum_i\rho_iB^ix_t := \sum_i\rho_ix_{t-i}$
 # The computation is done as
@@ -39,6 +38,10 @@ function backwarded_sum(x,ρ::P,t) where P <: Polynomial
 
 end
 
+# given a vector `x`, a polynomial ρ, and a present time `t`
+# Computes $\sum_i\rho_iB^ix_t := \sum_i\rho_ix_{t-i}$
+# The computation is done as
+# $$\left [ x_{t}, ..., x_{t-n} \right ] \cdot \left [ \rho_{0}, ..., \rho_{n} \right ]$$
 function backwarded_sum(x,ρ::A,t,buf = default_buffer()) where A <: AbstractArray
     if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense
         @no_escape buf begin

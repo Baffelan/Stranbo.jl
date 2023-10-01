@@ -1,8 +1,8 @@
 @kwdef struct SARIMA{T<:Real}
     s::Int
     d::Int
-    ar::SV where {SV <: SVector{N,T} where N}
-    ma::SV where {SV <: SVector{M,T} where M}
+    ar::SVN where {SVN <: SVector{N,T} where N}
+    ma::SVM where {SVM <: SVector{M,T} where M}
     dₙ
 end
 
