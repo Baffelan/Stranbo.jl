@@ -1,10 +1,12 @@
 using Stranbo
 using Test
 using Polynomials
+using StaticArrays
+using Distributions
 
 @testset "Stranbo.jl" begin
     @test_throws UndefKeywordError SARIMA()
-    @test typeof(SARIMA{Float64}(1, 0, Float64[], Float64[], Normal{Float64}(0.0, 1.0)))  <: SARIMA
+    @test typeof(SARIMA{Float64}(1, 0, SVector{0,Float64}(), SVector{0,Float64}(), Normal{Float64}(0.0, 1.0)))  <: SARIMA
 end
 
 @testset "s_arma.jl" begin
