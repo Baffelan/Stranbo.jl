@@ -9,6 +9,18 @@ The fundamental idea is to define stochastic process as (parametric) types, shar
 
 The main difference with other existing packages is that we do not include in the package ANY analysis, fitting, or learning procedure. This is just about simulating (potentially complex) time series with given paramaters and anomaly regimes. This seems to be a functionality not exposed in any other package (that we are aware of).
 
+# Implemented processes
+
+`Stranbo` comes with a bunch of pre-cooked stochastic processes, that can be mixed with other user-defined processes.
+
+So far we have builder functions for:
+
+- `sarima`: with this you can create any combination of seasonal, auto-regressive, integrated, moving average (generated from gaussian noise, whatever other noise you can define as a `Distribution`, or any deterministic vector of the right size). The process can be any composition of $(p,d,q)s$ components (so you can have as many seasonal components, integrated or not, that you want). 
+- `sarimax`: as for `sarima` but with added auxiliary components (that also have $(p,d,q)s$ parameters. Also for `sarimax`, you can mix and match as you want.
+- `mixed_dirac_normal`: that's there for generating anomalies. It's constantly zero most of the time, and sometimes samples from a normal distribution with given $\sigma$ and zero mean.
+
+
+
 # Usage
 
 # WARNING
@@ -26,7 +38,7 @@ Pkg.add("https://github.com/Baffelan/Stranbo.jl")
 
 ## Create a series
 
-For the moment, the package supports ar(i)ma processes with seasonalities and additive noise.
+For the moment, the package supports sarima(x) processes with seasonalities and additive noise.
 
 We first define the number of observations in the series:
 
@@ -37,7 +49,7 @@ L = 10_000
 Then, we define a distribution for the noise. For this, we can use whatever distribution we can define in `Distributions.jl`. `Stranbo` has defined an ad hoc mixed dirac+normal distribution:
 
 ```Julia
-a = mixed_dirac_normal(0.4,0.99)
+a = mixed_dirac_normal(0.4,0.01)
 ```
 
 `a` is equal to $0$ with probability $0.99$, and is sampled from a normal distribution with mean 0 and variance $0.4$ with probability $1-0.99$.
@@ -83,6 +95,8 @@ And:
 sarima(d = 2, ar = [0.2], ma = [0.1])
 ```
 define an arima (1,2,1) with ar and ma coefficients as specified.
+
+To define a `sarimax` things are mostly the same, but you need to defin two more parameters: the auxiliary input and the related process coefficients.
 
 One of the main functions in the package is `sample`, which takes an array of time-series components, eventually one or more additive noises, (and in future an observation function), and number of points to sample.
 
@@ -197,9 +211,30 @@ yₜ = stack(xₜ) * G' .+ αₜ
 
 We could have used whatever else function on `stack(xₜ)`, for example any non-linear function.
 
+## A sarimax example
+
+We first define two different auxiliary inputs:
+
+```Julia
+up_and_downs = sign.(cos.(range(0,24π,length=100_000))
+wavey = sin.(range(0,6π,length=100_000))
+```
+
+With those, we can define two components for a sarimax process:
+
+```Julia
+proc_1 = sarimax(ar = [.8], ma = [2.], ax = [.5], dₙ = Normal(0.,0.2), axₙ = up_and_downs)
+proc_1 = sarimax(ar = [.8], ma = [2.], ax = [.5], s = 200, dₙ = Normal(0.,0.2), axₙ = up_and_downs)
+```
+
+And we plot them:
+
+```Julia
+sample([test,testb],100_000) |> plot
+```
+
 # TODO
 
-- [ ] auxiliary components (e.g., sarimax processes)
 - [ ] switchin-markov models
 - [ ] Multiplicative noises (and other non linear noises)
 - [ ] Noises as stochastic processes
