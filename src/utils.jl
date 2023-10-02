@@ -64,20 +64,5 @@ function seasonal_vector(v::SVector{N,T},s) where {N,T}
     return sv
 end
 
-function get_z(dₙ, n)
-
-    if typeof(dₙ) <: Distribution
-        z = rand(dₙ,n)
-    elseif typeof(dₙ) <: Array
-        z = dₙ
-    else
-        error("The processes needs either a white noise sequence of a distribution with which to generate it. Instead, it received an object of type " * string(typeof(dₙ)))
-    end
-
-    if length(z) < 90
-        z = SVector{length(z)}(z)
-    end
-
-    return z
-
-end
+get_z(dₙ::V, n) where V <: Vector = dₙ
+get_z(dₙ::D, n) where D <: Distribution = rand(dₙ,n)
