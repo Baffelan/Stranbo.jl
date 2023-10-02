@@ -28,10 +28,8 @@ export sarimax
 include("s_armax.jl")
 
 export getidx
-export lag
-export pushedback_sum
+export backwarded_sum
 export seasonal_vector
-export coeffpoly
 export Δ
 include("utils.jl")
 

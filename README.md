@@ -1,6 +1,7 @@
 # Stranbo
 
-[![Build Status](https://github.com/Baffelan/Stranbo.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Baffelan/Stranbo.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Build Status](https://github.com/Baffelan/Stranbo.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Baffelan/Stranbo.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+
 
 
 The aim of this nimble package is to simulate time series with anomalies. Its named after the word for "strange" in my dialect.
