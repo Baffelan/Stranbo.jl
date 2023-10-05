@@ -8,6 +8,7 @@ using LinearAlgebra: ⋅
 using Polynomials: *, -, Polynomial, coeffs
 using Random: rand
 using StaticArrays: SVector
+using LoopVectorization: @turbo
 
 
 export ArrayParams
