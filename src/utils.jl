@@ -1,7 +1,7 @@
 # this function allows to index into a vector with zero or negative indices
 # we use it when we build x[t] as a sum of elements x[t-k]
 # and it allow us not to have to check whether k >= t
-function getidx(v::V,i::Int)::T where V<:AbstractArray{T} where T<:Number
+function getidx(v::Vector{T},i::Int)::T where T<:Number
     vᵢ = i > 0 ? v[i] : zero(T)
     return vᵢ
 end
@@ -56,19 +56,26 @@ const One = Polynomial([1],:B)
 # Computes $\sum_i\rho_iB^ix_t := \sum_i\rho_ix_{t-i}$
 # The computation is done as
 # $$\left [ x_{t}, ..., x_{t-n} \right ] \cdot \left [ \rho_{0}, ..., \rho_{n} \right ]$$
-function backwarded_sum(x,ρ::A,t,buf = default_buffer()) where A <: AbstractArray
-    if length(ρ) >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense
-        @no_escape buf begin
-            y = alloc(eltype(x),buf,length(ρ))
-            y .= backshifted_view(x,t + 1,Base.oneto(length(ρ)))
-            y ⋅ ρ
-        end
+function backwarded_sum(x::Vector{T},ρ::SVector{N,T},t::Int)::T where {T <: Number, N}
+    if N >= 1 # we check that there are some coefficients in the polynomial, otherwise this has no sense
+        return allocated_back_dot(x,ρ,t+1)
     else
-        zero(eltype(x))
+        return zero(T)
     end
 end
-backwarded_sum(arrey_param::ArrayParams,t) = backwarded_sum(arrey_param.vector,arrey_param.coefficients,t)
+function backwarded_sum(arrey_param::ArrayParams,t)
+    x::eltype(arrey_param.vector) =  backwarded_sum(arrey_param.vector,arrey_param.coefficients,t)
+    return x
+end
 backwarded_sum(arreys_params::Vector{ArrayParams},t) = sum(backwarded_sum.(arreys_params,t))
+
+function allocated_back_dot(vector::Vector{T},coefficients::SVector{N,T},idx::Int; buff = default_buffer())::T where {T <: Number,N}
+    @no_escape buff begin
+        y = alloc(T,buff,N)
+        y .= backshifted_view(vector,idx,Base.oneto(N))
+        y ⋅ coefficients
+    end
+end
 
 
 # given a vector `v = [a,b,c,...]` and a seasonality `s`

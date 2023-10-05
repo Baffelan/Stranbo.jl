@@ -64,7 +64,7 @@ end
 
 # incremental adding process
 function lagger!(x,z,coeffs_ar,coeffs_ma)
-    for t in 1:length(x)
+    for t in eachindex(x)
     @inbounds  x[t] = backwarded_sum(x,coeffs_ar,t) + # ar component
                       backwarded_sum(z,coeffs_ma,t) # ma component
     end

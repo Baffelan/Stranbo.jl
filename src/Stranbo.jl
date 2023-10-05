@@ -2,13 +2,12 @@ module Stranbo
 
 import StatsBase: sample
 
-using Bumper: @no_escape, alloc, default_buffer
+using Bumper: @no_escape, alloc, default_buffer, AllocBuffer
 using Distributions: Distribution, MixtureModel, Normal
 using LinearAlgebra: ⋅
 using Polynomials: *, -, Polynomial, coeffs
 using Random: rand
 using StaticArrays: SVector
-using LoopVectorization: @turbo
 
 
 export ArrayParams
