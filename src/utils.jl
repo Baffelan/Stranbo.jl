@@ -7,8 +7,28 @@ function getidx(v::V,i::Int)::T where V<:AbstractArray{T} where T<:Number
 end
 
 # extension of basic getidx to array of indices
-getidx(v,Idx::I) where I<:AbstractArray  = [getidx(v,i) for i in Idx]
-getidx(v,Idx::I) where I<:Base.OneTo{<:Number}  = [getidx(v,i) for i in Idx]
+function getidx(v::Vector{T},Idx::I) where {I<:AbstractArray,T<:Number}
+    this_subv = Vector{T}(undef,length(I))
+    this_subv .= [getidx(v,i) for i in Idx]
+    return this_subv
+end
+
+function getidx(v::Vector{T},Idx::I) where {I<:StepRange,T<:Number}
+    this_subv = Vector{T}(undef,length(Idx))
+    
+    @turbo for i in 1:length(Idx)
+      this_subv[i] = getidx(v,Idx[i])
+    end
+
+    return this_subv
+end
+
+
+function getidx(v::Vector{T},Idx::I) where {I<:Base.OneTo{<:Number},T<:Number}
+    this_subv = Vector{T}(undef,length(I))
+    this_subv .= [getidx(v,i) for i in Idx]
+    return this_subv
+end
 
 # given a vector `x`, an index `t` in `x` (the *current time*), and a vector of indexes `I`
 # returns the backshifted view `x[t-i]` for `i ∈ l`

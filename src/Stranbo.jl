@@ -9,6 +9,7 @@ using Polynomials: *, -, Polynomial, coeffs
 using Random: rand
 using StaticArrays: SVector
 
+
 export ArrayParams
 struct ArrayParams
     vector::V where {V <: AbstractArray{<:Number}}

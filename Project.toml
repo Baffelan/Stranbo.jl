@@ -7,17 +7,18 @@ version = "0.0.1"
 Bumper = "8ce10254-0962-460f-a3d8-1f77fea1446e"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+LoopVectorization = "bdcacae8-1622-11e9-2a5c-532679323890"
 Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
+Bumper = "0.2"
 Distributions = "0.25"
 Polynomials = "4"
-StatsBase = "0.34"
-Bumper = "0.2"
 StaticArrays = "1"
+StatsBase = "0.34"
 julia = "1.9"
 
 [extras]
