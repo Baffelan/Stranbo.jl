@@ -9,15 +9,19 @@ end
 # extension of basic getidx to array of indices
 function getidx(v::Vector{T},Idx::I) where {I<:AbstractArray,T<:Number}
     this_subv = Vector{T}(undef,length(I))
-    this_subv .= [getidx(v,i) for i in Idx]
+    
+    for i in 1:length(Idx)
+        @inbounds  this_subv[i] = getidx(v,Idx[i])
+    end
+    
     return this_subv
 end
 
 function getidx(v::Vector{T},Idx::I) where {I<:StepRange,T<:Number}
     this_subv = Vector{T}(undef,length(Idx))
     
-    @turbo for i in 1:length(Idx)
-      this_subv[i] = getidx(v,Idx[i])
+    for i in 1:length(Idx)
+    @inbounds  this_subv[i] = getidx(v,Idx[i])
     end
 
     return this_subv
@@ -26,13 +30,17 @@ end
 
 function getidx(v::Vector{T},Idx::I) where {I<:Base.OneTo{<:Number},T<:Number}
     this_subv = Vector{T}(undef,length(I))
-    this_subv .= [getidx(v,i) for i in Idx]
+    
+    for i in 1:length(Idx)
+        @inbounds  this_subv[i] = getidx(v,Idx[i])
+    end
+    
     return this_subv
 end
 
 # given a vector `x`, an index `t` in `x` (the *current time*), and a vector of indexes `I`
 # returns the backshifted view `x[t-i]` for `i ∈ l`
-backshifted_view(x,t,I) = @inline getidx(x,t .- I)
+backshifted_view(x,t,I) = @inline  getidx(x,t .- I)
 
 # the constant polynomial $1$ in the variable `:B`
 const One = Polynomial([1],:B)
@@ -84,5 +92,10 @@ function seasonal_vector(v::SVector{N,T},s) where {N,T}
     return sv
 end
 
-get_z(dₙ::V, n) where V <: Vector = dₙ
-get_z(dₙ::D, n) where D <: Distribution = rand(dₙ,n)
+function get_z(dₙ::V, n) where V <: Vector
+    return dₙ
+end
+
+function get_z(dₙ::D, n) where D <: Distribution
+    return rand(dₙ,n)
+end
