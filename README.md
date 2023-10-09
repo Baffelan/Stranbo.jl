@@ -234,6 +234,45 @@ And we plot them:
 sample([test,testb],100_000) |> plot
 ```
 
+## A multivariate example
+
+```Julia
+using Distributions, LinearAlgebra, Stranbo
+using Plots
+
+# we build a var-covar matrix
+Σ = [1.0   .9   .9
+      .9  1.0   .9
+      .9   .9  1.0]
+
+# sample n points
+WNoise = MvNormal([.0,.0,.0], Σ)
+z = rand(WNoise,100_000)
+
+# define equivalent seasonality effects
+seasonalities = [
+    sarima(d = 1, ar = [.4], s = 5), # first seasonal effect
+    sarima(ar = [.5,.3], ma = [.4,.3,.1], s = 10) # second seasonal effect
+]
+
+# define base processes
+
+b1 = sarima(ar = [.5], ma = [.5], dₙ = z[1,:])
+b2 = sarima(ar = [.5], ma = [.5], dₙ = z[2,:])
+b3 = sarima(ar = [.5], ma = [.5], dₙ = z[3,:])
+
+three_trajectories = sample.(
+    [vcat(b1,seasonalities),
+     vcat(b2,seasonalities),
+     vcat(b3,seasonalities)],
+     100_000
+)
+
+plot(three_trajectories[1])
+plot!(three_trajectories[2], color = "red")
+plot!(three_trajectories[3], color = "green")
+```
+
 # TODO
 
 - [ ] switchin-markov models
